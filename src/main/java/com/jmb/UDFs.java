@@ -1,8 +1,12 @@
 package com.jmb;
 
+import com.jmb.udfs.DateParserUDF;
 import org.apache.spark.sql.*;
+import org.apache.spark.sql.types.DataTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.spark.sql.functions.*;
 
 public class UDFs {
 
@@ -32,7 +36,17 @@ public class UDFs {
                 .load(PATH_RESOURCES);
 
         //Display five first rows and inspect schema
-        df.show(5);
+        //df.show(5);
+
+        //Register a date parser UDF
+        session.udf().register("dateParser", new DateParserUDF(), DataTypes.DateType);
+
+        //call the UDF function
+        Dataset<Row> dfDatesParsed = df.withColumn("EventDateParsed", callUDF("dateParser", col("EventDate"), lit("YYYY/MM/DD HH:mm:ss")))
+                                        .drop("EventDate");
+
+        //Print results
+        dfDatesParsed.show(5);
 
     }
 
