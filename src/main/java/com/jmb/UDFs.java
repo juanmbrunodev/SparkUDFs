@@ -1,6 +1,7 @@
 package com.jmb;
 
 import com.jmb.udfs.DateParserUDF;
+import org.apache.spark.SparkConf;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.types.DataTypes;
 import org.slf4j.Logger;
@@ -23,9 +24,12 @@ public class UDFs {
     }
 
     private void init() throws Exception {
+        SparkConf appConfig = new SparkConf().set("spark.testing.memory", "900000000");
+
         //Create the Spark Session
         SparkSession session = SparkSession.builder()
                 .appName("UDFs")
+                .config(appConfig)
                 .master("local").getOrCreate();
 
         //Ingest data from CSV files into a DataFrames
